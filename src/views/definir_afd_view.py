@@ -1,8 +1,15 @@
+#frameworks
 import flet as ft
+
+#librerias
 import os
+
+#Utiles:
 from utils.utilidades import Indicador
 from utils.tabla_transiciones import TablaTransiciones
 from utils.mk_img_automaton import mk_img_automaton
+from utils.load_jff import load_jff
+from utils.save_jff import save_jff
 
 
 class Definir_afd_view:
@@ -12,8 +19,48 @@ class Definir_afd_view:
         self.page = page
         self.page.title = "Definir AFD"
         
+        self.go_home = ft.ElevatedButton(
+            icon= ft.Icons.HOME,
+            text="Ir a la pantalla principal",
+            on_click= lambda _: self.page.go("/"),
+            style=ft.ButtonStyle(
+                bgcolor=ft.Colors.BLUE,
+                color=ft.Colors.WHITE, 
+                padding=20,
+                shape=ft.RoundedRectangleBorder(radius=8),
+                elevation={"pressed": 2, "hovered": 4},
+            )
+        )
+
+        self.load_automata_button = ft.ElevatedButton(
+            icon=ft.Icons.UPLOAD,
+            text="Cargar un Automata",
+            on_click= self.cargar_automata,
+            style=ft.ButtonStyle(
+                bgcolor=ft.Colors.GREEN,
+                color=ft.Colors.WHITE, 
+                padding=20,
+                shape=ft.RoundedRectangleBorder(radius=8),
+                elevation={"pressed": 2, "hovered": 4},
+            )
+        )
+
+        self.simular_automata_button = ft.ElevatedButton(
+            text="Simular Automata",
+            icon=ft.Icons.PLAY_ARROW,
+            on_click=lambda _: self.page.go("/simulacion_afd"),
+            style=ft.ButtonStyle(
+                bgcolor=ft.Colors.ORANGE,
+                color=ft.Colors.WHITE, 
+                padding=20,
+                shape=ft.RoundedRectangleBorder(radius=8),
+                elevation={"pressed": 2, "hovered": 4},
+            )
+        )
+        self.div = ft.Divider(height=10, thickness=1, color="grey",leading_indent= 20)
+
         self.transiciones = {}
-        self.transiciones_text = ft.Text(value = "")
+        self.transiciones_text = ft.Text(value = "", color=ft.Colors.GREY, style=ft.TextStyle(weight=ft.FontWeight.BOLD))
 
         self.alfabeto = []
         self.ind_alfabeto = Indicador()
@@ -40,18 +87,37 @@ class Definir_afd_view:
             expand=True     
         )
 
-        self.table_container = ft.Column()
+        self.table_container = ft.Row(scroll="horizontal", alignment= ft.MainAxisAlignment.CENTER)
         self.tabla_transiciones = None
-        self.dicc_transiciones = {}
         self.table_buttons = ft.Row()
 
-        self.img_automaton_container = ft.Column(height=200)
+        self.img_automaton_container = ft.Container(
+            content=ft.Column(
+                scroll=ft.ScrollMode.AUTO,
+                horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            ),
+            height=300,  
+            width=600,
+            border=ft.border.all(2, ft.Colors.BLACK),
+            border_radius=10,
+            padding=15,
+            alignment=ft.alignment.top_center, 
+            bgcolor=ft.Colors.GREY_600,  
+        )
         self.img_automaton = None
         self.img_generar_boton = ft.TextButton(
                 text= "Generar Imagen del Automata",
+                icon=ft.Icons.AUTO_AWESOME_MOSAIC_OUTLINED,
                 on_click= self.generar_imagen,
                 visible= False
             )
+        
+        self.save_automaton_button = ft.TextButton(
+            visible= False,
+            icon = ft.Icons.SAVE_AS,
+            text= "Guardar Automata como...",
+            on_click= self.guardar_automata
+        )
 
 
 
@@ -63,7 +129,18 @@ class Definir_afd_view:
             controls=[    
                 ft.Column(
                     width = 700,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     controls= [
+
+                        ft.Row(
+                            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+                            controls = [
+                                self.go_home,
+                                self.load_automata_button,
+                                self.simular_automata_button
+                            ]
+                            
+                        ),
 
                         #Definicion del Afabeto
                         ft.Row(
@@ -118,11 +195,13 @@ class Definir_afd_view:
                             ]
                         ), 
 
+                        self.div,
+
                         ft.Row(
                             controls = [
                                 ft.Text(" Tabla de transiciones (δ):"),
-                                ft.TextButton(
-                                text="Crear Tabla de Transiciones",
+                                ft.ElevatedButton(
+                                text="Crear Tabla de Transiciones/Resetear",
                                 on_click= self.mkTabla
                                 ),
                                 self.transiciones_text,
@@ -130,8 +209,16 @@ class Definir_afd_view:
                         ),
 
                         self.table_container,
-                        self.img_generar_boton,
-                        self.img_automaton_container,  
+
+                        ft.Row(
+                            controls= [
+                                self.img_generar_boton,
+                                self.save_automaton_button
+                            ]
+                        ),
+                        self.div,
+                        self.img_automaton_container,
+                        self.div,  
                         
                     ]
                 )
@@ -156,6 +243,8 @@ class Definir_afd_view:
             self.alfabeto_tf.error_text = None
             self.alfabeto = self.parse_symbol_groups(self.alfabeto_tf.value)
             self.ind_alfabeto.change_color(True)
+            #Resetear las transiciones para forzar la creacion de uno nuevo
+            self.transiciones = {}
             
         print(self.alfabeto)
         
@@ -173,6 +262,8 @@ class Definir_afd_view:
             self.estados_tf.error_text = None
             self.estados = self.parse_symbol_groups(self.estados_tf.value)
             self.ind_estados.change_color(True)
+            #Resetear las transiciones para forzar la creacion de uno nuevo
+            self.transiciones = {}
             
         print(self.estados)
         
@@ -207,41 +298,70 @@ class Definir_afd_view:
         self.page.update()
 
     def generar_imagen(self, e):
-        # Limpiar archivos antiguos (solo si usas Opción 2)
+        
         for archivo in os.listdir('.'):
             if archivo.startswith('automata_') and archivo.endswith('.png'):
                 try:
                     os.remove(archivo)
                 except:
                     pass
+
+        self.img_automaton_container.content.controls.clear()
         
-        # Limpiar contenedor
-        self.img_automaton_container.controls.clear()
-        
-        # Generar nueva imagen
         self.img_automaton = mk_img_automaton(
             transiciones=self.transiciones, 
             estados_finales=self.estados_fin
         )
         
-        self.img_automaton_container.controls.append(self.img_automaton)
-        self.page.update()  # ← Importante: actualizar toda la página
+        self.img_automaton_container.content.controls.append(self.img_automaton)
+        self.save_automaton_button.visible = True
+        self.page.update()  
 
     def mkTabla(self, e):          
         if(self.ind_alfabeto.status and self.ind_estados.status and self.ind_estados_fin.status):
             
             self.transiciones_text.value = "¡Tabla creada!"
+            self.transiciones_text.color = ft.Colors.GREEN
             self.table_container.controls.clear()
             
             # Crear la tabla
             self.tabla_transiciones = TablaTransiciones(estados=self.estados, alfabeto=self.alfabeto, transiciones= self.transiciones)
-            self.tabla_transiciones.create_dicc_trans()
+            if not self.transiciones:
+                self.tabla_transiciones.create_dicc_trans()
             # Agregar directamente el DataTable
             self.table_container.controls.append(self.tabla_transiciones.build())
-
+            print(self.transiciones)
             self.img_generar_boton.visible = True
             
             self.page.update()
         else: 
             self.transiciones_text.value = "¡Antes llene los campos correctamente!"
+            self.transiciones_text.color = ft.Colors.RED
             self.page.update()
+
+    def guardar_automata(self, e):
+        save_jff(self.alfabeto, self.estados, self.estados_fin, self.transiciones)        
+
+    def cargar_automata(self, e):
+        self.alfabeto, self.estados, self.estados_fin,self.transiciones = load_jff()
+
+        print("**Automata Cargado:**")
+        print(self.alfabeto)
+        print(self.estados)
+        print(self.estados_fin)
+
+        #Alfabeto
+        self.alfabeto_tf.value = ",".join(str(x) for x in self.alfabeto)
+        self.ind_alfabeto.change_color(True)
+        #Estados
+        self.estados_tf.value = ",".join(str(x) for x in self.estados)
+        self.ind_estados.change_color(True)
+        #Estados Finales
+        self.estados_fin_tf.value = ",".join(str(x) for x in self.estados_fin)
+        self.ind_estados_fin.change_color(True)
+        #Transiciones
+        print(self.transiciones)
+        self.mkTabla(e)
+        self.generar_imagen(e)
+        
+        self.page.update()

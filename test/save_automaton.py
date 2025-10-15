@@ -1,13 +1,13 @@
-import flet as ft
 import json
 from tkinter import Tk, filedialog
 
 
-def save_automaton(alfabeto: list, estados: list, transiciones: dict):
+def save_automaton(alfabeto: list, estados: list, estados_finales: list, transiciones: dict):
 
     datos = {
         "alfabeto": alfabeto,
         "estados": estados,
+        "estados_finales": estados_finales,
         "transiciones": transiciones
     }
 
@@ -20,7 +20,7 @@ def save_automaton(alfabeto: list, estados: list, transiciones: dict):
             title="Guardar Automata",
             defaultextension=".json",
             filetypes=[
-                ("Archivos JSON", "*.jsonn")
+                ("Archivos JSON", "*.json")
             ],
             initialfile="mi_automata.json"
         )
@@ -29,15 +29,10 @@ def save_automaton(alfabeto: list, estados: list, transiciones: dict):
         if archivo:
             with open(archivo, 'w', encoding='utf-8') as f:
                 json.dump(datos, f, indent=4)
+                print(f"✅ Guardado en: {archivo}")
         else:
-            pass
-    except:
-        pass
+            print("❌ Operación cancelada")
+    except Exception as ex:
+        print(f"❌ Error al guardar: {ex}")
 
-
-alfabeto = [0,1]
-estados = ["q0","q1","q2"]
-transiciones = {"q0":1, "q1":2}
-
-save_automaton(alfabeto= alfabeto, estados= estados, transiciones=transiciones)
 

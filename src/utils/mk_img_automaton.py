@@ -8,7 +8,7 @@ def mk_img_automaton(transiciones: dict, estados_finales: list):
     dot.attr(rankdir="LR")
     dot.attr(size='8,5')
     
-    # Crear nodos
+    #crear nodos
     for i, estado in enumerate(transiciones):
         if estado in estados_finales:
             shape = 'doublecircle'
@@ -19,7 +19,7 @@ def mk_img_automaton(transiciones: dict, estados_finales: list):
         else:
             dot.node(estado, shape=shape)
     
-    # Crear transiciones
+    #crear transiciones
     transiciones_agrupadas = defaultdict(list)
     for estado in transiciones:
         for simbolo in transiciones[estado]:
@@ -31,7 +31,7 @@ def mk_img_automaton(transiciones: dict, estados_finales: list):
         label = ",".join(simbolos)
         dot.edge(origen, destino, label=label)
     
-    # Nombre único cada vez ← ALTERNATIVA
+    
     filename = f'automata_{int(time.time()*1000)}'
     filepath = dot.render(filename=filename, cleanup=True)
     

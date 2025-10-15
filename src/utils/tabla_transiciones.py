@@ -14,19 +14,26 @@ class TablaTransiciones:
         self.transiciones[estado][simbolo] = e.control.value
         print(f"δ({estado}, {simbolo}) = {e.control.value}")
     
+    def get_value(self, transicion):
+        if transicion == "":
+            return "Ø"
+        else:
+            return transicion
+    
     def build(self) -> ft.DataTable:
         columnas = [ft.DataColumn(ft.Text("Estado", weight="bold"))]
         columnas += [ft.DataColumn(ft.Text(str(simbolo), weight="bold")) for simbolo in self.alfabeto]
-        
+    
         filas = []
         for estado in self.estados:
             celdas = [ft.DataCell(ft.Text(estado))]
             for simbolo in self.alfabeto:
                 dropdown = ft.Dropdown(
                     options=[ft.dropdown.Option("Ø")] + [ft.dropdown.Option(e) for e in self.estados],
-                    width=200,
+                    width=100,
                     text_size=12,
-                    on_change=lambda e, est=estado, sim=simbolo: self.actualizar_transicion(est, sim, e)
+                    on_change=lambda e, est=estado, sim=simbolo: self.actualizar_transicion(est, sim, e),
+                    value= self.get_value(self.transiciones[estado][simbolo])
                 )
                 celdas.append(ft.DataCell(dropdown))
             filas.append(ft.DataRow(cells=celdas))
