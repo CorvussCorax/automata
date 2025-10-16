@@ -11,9 +11,10 @@ class Home_view:
             controls=[
                 ft.Container(
                     content=ft.Column(
-                        [
+                        width=True,
+                        controls=[
                             ft.Text(
-                                "AFD Builder",
+                                "Automatas Finitos",
                                 size=32,
                                 weight=ft.FontWeight.BOLD
                             ),
@@ -23,17 +24,29 @@ class Home_view:
                                 "Definir/Editar/Visualizar AFD",
                                 icon=ft.Icons.BUILD_OUTLINED,
                                 on_click=lambda _: self.page.go("/definir_afd"),
+                                expand=True,
                                 style=ft.ButtonStyle(
                                     padding=20,
-                                )
+                                    bgcolor=ft.Colors.GREY_700,
+                                    color=ft.Colors.WHITE,
+                                    overlay_color=ft.Colors.GREY_900,
+                                    shape=ft.RoundedRectangleBorder(radius=10),
+                                    elevation={"pressed": 2, "hovered": 8, "focused": 4},
+                                ),
                             ),
 
                             ft.ElevatedButton(
                                 "Simular AFD",
                                 icon=ft.Icons.PLAY_ARROW,
                                 on_click=lambda _: self.page.go("/simulacion_afd"),
+                                expand=True,
                                 style=ft.ButtonStyle(
                                     padding=20,
+                                    bgcolor=ft.Colors.ORANGE,
+                                    color=ft.Colors.WHITE,
+                                    overlay_color=ft.Colors.ORANGE_900,
+                                    shape=ft.RoundedRectangleBorder(radius=10),
+                                    elevation={"pressed": 2, "hovered": 8, "focused": 4},
                                 ),
                             ),
 
@@ -41,8 +54,14 @@ class Home_view:
                                 "Calcular Subcadenas",
                                 icon=ft.Icons.TEXT_FIELDS,
                                 on_click=lambda _: self.page.go("/calcular_subcadenas"),
+                                expand=True,
                                 style=ft.ButtonStyle(
                                     padding=20,
+                                    bgcolor=ft.Colors.RED,
+                                    color=ft.Colors.WHITE,
+                                    overlay_color=ft.Colors.RED_900,
+                                    shape=ft.RoundedRectangleBorder(radius=10),
+                                    elevation={"pressed": 2, "hovered": 8, "focused": 4},
                                 ),
                             ),
 
@@ -50,8 +69,14 @@ class Home_view:
                                 "Calcular Cerraduras",
                                 icon=ft.Icons.FUNCTIONS,
                                 on_click=lambda _: self.page.go("/calcular_cerraduras"),
+                                expand=True,
                                 style=ft.ButtonStyle(
                                     padding=20,
+                                    bgcolor=ft.Colors.RED,
+                                    color=ft.Colors.WHITE,
+                                    overlay_color=ft.Colors.RED_900,
+                                    shape=ft.RoundedRectangleBorder(radius=10),
+                                    elevation={"pressed": 2, "hovered": 8, "focused": 4},
                                 ),
                             ),
 
