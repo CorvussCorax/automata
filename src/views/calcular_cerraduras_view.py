@@ -2,10 +2,10 @@ import flet as ft
 from tkinter import Tk, filedialog
 from utils.utilidades import Indicador
 
-class Calcular_subcadenas_view:
+class Calcular_cerraduras_view:
     def __init__(self, page: ft.Page):
         self.page = page
-        self.page.title = "Calculo de Subcadenas"
+        self.page.title = "Calculo de Cerraduras"
 
         self.go_home = ft.ElevatedButton(
             icon= ft.Icons.HOME,
@@ -20,10 +20,10 @@ class Calcular_subcadenas_view:
             )
         )
 
-        self.go_calcular_cerraduras = ft.ElevatedButton(
+        self.go_calcular_subcadenas = ft.ElevatedButton(
             icon= ft.Icons.FUNCTIONS,
-            text="Calcular Cerraduras",
-            on_click= lambda _: self.page.go("/calcular_cerraduras"),
+            text="Calcular Subcadenas",
+            on_click= lambda _: self.page.go("/calcular_subcadenas"),
             style=ft.ButtonStyle(
                 bgcolor=ft.Colors.RED,
                 color=ft.Colors.WHITE, 
@@ -46,60 +46,65 @@ class Calcular_subcadenas_view:
             )
         )
 
-        self.ind_cadena = Indicador()
-        self.cadena_text = ft.Text("Ingresa una Cadena(w):")
-        self.cadena_tf = ft.TextField(
-            hint_text="abc",
-            expand=True,
-            label="Cadena(w)",
-            on_submit = self.procesar_subcadenas
+        self.ind_alfabeto = Indicador()
+        self.alfabeto_text = ft.Text("Ingresa un alfabeto(Σ):")
+        self.alfabeto_tf = ft.TextField(
+            hint_text="a,b,c",
+            label="Alfabeto:",
+            expand=True
         )
-        self.cadena_button = ft.IconButton(
+        self.alfabeto_button = ft.IconButton(
             icon=ft.Icons.SAVE,
-            on_click = self.procesar_subcadenas 
+            on_click = self.procesar_alfabeto
         )
-        self.cadena = ""
-        self.substring_list = []
-        self.suffix_list = []
-        self.prefix_list = []
+        self.alfabeto = []
+        self.positiva = []
+        self.kleene = []
+
+        
+        self.ind_longitud = Indicador()
+        self.longitud_tf = ft.TextField(
+            hint_text="3",
+            label="Longitud:",
+            width=100
+        )
+        self.longitud = None
 
         self.resultados = ft.Column(
             scroll=ft.ScrollMode.AUTO,
             height=450,
             width=650
         )
-
-
     
     def build(self) -> ft.View:
         return ft.View(
-            route="/calcular_subcadenas",
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+            route="/calcular_cerraduras",
             controls=[
                 ft.Column(
-                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     width=700,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     controls= [
-                        
                         ft.Row(
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                             controls=[
                                 self.go_home,
-                                self.go_calcular_cerraduras,
-                                self.create_automata_button 
+                                self.go_calcular_subcadenas,
+                                self.create_automata_button
                             ]
                         ),
 
                         ft.Row(
-                            controls=[
-                                self.ind_cadena,
-                                self.cadena_text
+                            controls = [
+                                self.ind_alfabeto,
+                                self.alfabeto_text
                             ]
                         ),
+
                         ft.Row(
-                            controls=[
-                                self.cadena_tf,
-                                self.cadena_button
+                            controls = [
+                                self.alfabeto_tf,
+                                self.longitud_tf,
+                                self.alfabeto_button,
                             ]
                         ),
 
@@ -132,57 +137,47 @@ class Calcular_subcadenas_view:
                                 ),
                             ]
                         ),
+
                     ]
                 )
             ],
+            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         )
+    def parse_symbol_groups(self, cadena):
+        elementos = cadena.split(',')
+        return list(dict.fromkeys([x.replace(' ', '') for x in elementos]))
     
-    
-    
-    def prefix(self, cadena: str):
-            l = []
-            for i in range(len(cadena) + 1):
-                    l.append(cadena[:i])
-
-            l = sorted(l, key=lambda x: (len(x), x))
-            l = ["λ" if x == "" else x for x in l]
-
-            return l
-
-    def suffix(self, cadena:str):
-            l = []
-            for i in range(len(cadena)+1):
-                    l.append(cadena[i:])
-            l = sorted(l, key=lambda x: (len(x), x))
-            l = ["λ" if x == "" else x for x in l]
-            
-            return l
-
-    def substring(self, cadena:str):
-            l = set()
-            for i in range(len(cadena)):
-                    for j in range(i + 1, len(cadena) + 1):
-                            #print(s[i:j])
-                            l.add(cadena[i:j])
-            l = list(l)
-            l = sorted(l, key=lambda x: (len(x), x))
-            l.insert(0, "λ")
-            return l
-
-    def procesar_subcadenas(self, e):
-
+    def procesar_alfabeto(self, e):
         self.resultados.controls.clear()
-        self.ind_cadena.change_color(True)
-        self.cadena = self.cadena_tf.value
-        self.substring_list = self.substring(self.cadena)
-        self.prefix_list = self.prefix(self.cadena)
-        self.suffix_list = self.suffix(self.cadena)
-        #Subcadenas
-        self.agregar_seccion_resultado("Subcadenas", self.substring_list, "#009E00")
-        #Prefijos
-        self.agregar_seccion_resultado("Prefijos",self.prefix_list, "#000899")       
-        #Sufijos
-        self.agregar_seccion_resultado("Sufijos",self.suffix_list, "#A40024")
+        self.alfabeto = []
+        flag = False
+        #Si no hay ningun elemento en el alfabeto
+        self.longitud = int(self.longitud_tf.value)
+        if (not self.alfabeto_tf.value.strip()) or (not self.longitud):
+            self.alfabeto_tf.error_text = "No puede estar vacio"
+            self.longitud_tf.error_text = "Ingresa un numero entero"
+            self.ind_alfabeto.change_color(False)
+            flag = False
+        #Creamos el alfabeto
+        else:
+            self.alfabeto_tf.error_text = None
+            self.longitud_tf.error_text = None
+            self.alfabeto = self.parse_symbol_groups(self.alfabeto_tf.value)
+            self.longitud = int(self.longitud_tf.value)
+            self.ind_alfabeto.change_color(True)
+            print(self.alfabeto) 
+            print(self.longitud) 
+            flag = True
+            
+        if flag:
+            self.positiva = self.generar_cerraduras(alfabeto=self.alfabeto, longitud=self.longitud)
+            self.kleene = self.positiva.copy()
+            self.kleene.insert(0,'λ')
+            #Cerradura de Kleene
+            self.agregar_seccion_resultado("Cerradura de Kleene (Σ*)", self.kleene, "#009E00")
+            #Cerradura Positiva
+            self.agregar_seccion_resultado("Cerradura Positiva (Σ+)", self.positiva, "#000899") 
+    
         self.page.update()
 
     def agregar_seccion_resultado(self, titulo, elementos, color_fondo):
@@ -208,6 +203,19 @@ class Calcular_subcadenas_view:
             margin=ft.margin.only(bottom=10)
         )
         self.resultados.controls.append(seccion)
+
+    
+    def generar_cerraduras(self, alfabeto:list, longitud:int):
+        def backtrack(actual):
+            if 0 < len(actual) <= longitud:
+                resultado.append(actual)
+            if len(actual) == longitud:
+                return
+            for letra in alfabeto:
+                backtrack(actual + letra)
+        resultado = []
+        backtrack('')
+        return sorted(resultado, key=lambda x: (len(x), x))
     
     def save_txt(self, e):
         try:
@@ -216,25 +224,21 @@ class Calcular_subcadenas_view:
             root.wm_attributes('-topmost',1)
 
             file = filedialog.asksaveasfilename(
-                title="Guardar Subcadenas",
+                title="Guardar Cerraduras",
                 defaultextension=".txt",
                 filetypes=[("Archivos TXT", "*.txt")],
-                initialfile="subcadenas.txt"
+                initialfile="cerraduras.txt"
             )
             root.destroy()
 
             if file:
                 with open(file, mode='w', encoding='utf-8') as f:
-                    f.write("==== Subcadenas ====\n")
-                    for palabra in self.substring_list:
+                    f.write("==== Cerradura de Kleene (Σ*) ====\n")
+                    for palabra in self.kleene:
                         f.write(f"{palabra}\n")
                     
-                    f.write("\n==== Prefijos ====\n")
-                    for palabra in self.prefix_list:
-                        f.write(f"{palabra}\n")
-                    
-                    f.write("\n==== Sufijos ====\n")
-                    for palabra in self.suffix_list:
+                    f.write("\n==== Cerradura Positiva (Σ⁺) ====\n")
+                    for palabra in self.positiva:
                         f.write(f"{palabra}\n")
 
             else:

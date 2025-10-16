@@ -1,22 +1,20 @@
-#Retorna Verdadero o Falso segun la aceptacion
+def generar_cerraduras(alfabeto:list, longitud:int):
+        def backtrack(actual):
+            if 0 < len(actual) <= longitud:
+                resultado.append(actual)
+            if len(actual) == longitud:
+                return
+            for letra in alfabeto:
+                backtrack(actual + letra)
+        resultado = []
+        backtrack('')
+        return sorted(resultado, key=lambda x: (len(x), x))
 
-def traza_simulacion(cadena:str, transiciones:dict, estado_inicial:str ,estados_finales:list):
-        estado_actual = estado_inicial
-        print(" ↓")
-        for i,letra in enumerate(cadena):
-                if i == 0: print(f"({estado_actual}, {cadena[i:]})")
-                else: print(f" ⊢({estado_actual}, {cadena[i:]})")
-                
-                if not transiciones[estado_actual][letra]:
-                        return False
-                estado_actual = transiciones[estado_actual][letra]
-                
-        return estado_actual in estados_finales
+#Ejemplo
+a = ("a", "b", "c")
+print(generar_cerraduras(alfabeto=a, longitud=2))
 
-cadena = "11111111111111111"
-estados = ["q0","q1","q2"]
-transiciones = {"q0":{"0":"", "1":"q1"},"q1":{"0":"", "1":"q2"},"q2":{"0":"", "1":"q2"}}
-estados_finales = ["q2"]
 
-aceptacion = traza_simulacion(cadena=cadena, transiciones=transiciones, estado_inicial=estados[0], estados_finales=estados_finales)
-print(aceptacion)
+#palabras = ['ab', 'aa', 'b', 'a', 'ba', 'bb']
+#ordenadas = sorted(palabras, key=lambda x: (len(x), x))
+#print(ordenadas)

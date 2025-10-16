@@ -46,6 +46,15 @@ class Home_view:
                                 ),
                             ),
 
+                            ft.ElevatedButton(
+                                "Calcular Cerraduras",
+                                icon=ft.Icons.FUNCTIONS,
+                                on_click=lambda _: self.page.go("/calcular_cerraduras"),
+                                style=ft.ButtonStyle(
+                                    padding=20,
+                                ),
+                            ),
+
                         ],
                         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     ),
