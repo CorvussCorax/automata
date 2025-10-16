@@ -1,3 +1,4 @@
+# NADA INTERESANTE POR AQUI
 # Automata app
 
 /mi_app/
