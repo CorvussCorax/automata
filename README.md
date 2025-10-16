@@ -14,31 +14,33 @@ source venv/bin/activate
 # Instalar dependencias
 pip install -r requirements.txt
 ```
-# Ejecucion:
-Una vez instalados todos los requerimentos solo ejecuta main.py
-├── automata/
-    ├── pyproject.toml
-    ├── README.md
-    ├── directorios.py
-    ├── requirements.txt
-    ├── tree.txt
-    ├── .gitignore
-    ├── src/
-        ├── router.py
-        ├── main.py  <---------------- Este merooooooooooooooooooooooooooooo
-        ├── assets/
-            ├── icon.png
-        ├── views/
-            ├── calcular_subcadenas_view.py
-            ├── home_view.py
-            ├── simulacion_afd_view.py
-            ├── definir_afd_view.py
-            ├── calcular_cerraduras_view.py
-        ├── utils/
-            ├── mk_img_automaton.py
-            ├── load_jff.py
-            ├── save_jff.py
-            ├── tabla_transiciones.py
-            ├── utilidades.py
+## Ejecución
 
-y ya eso es todo
+Una vez instalados todos los requerimientos, simplemente ejecuta `main.py`.
+
+```text
+automata/
+├── pyproject.toml
+├── README.md
+├── directorios.py
+├── requirements.txt
+├── tree.txt
+├── .gitignore
+├── src/
+│   ├── router.py
+│   ├── main.py     ← ¡Este es el archivo que debes ejecutar!
+│   ├── assets/
+│   │   └── icon.png
+│   ├── views/
+│   │   ├── calcular_subcadenas_view.py
+│   │   ├── home_view.py
+│   │   ├── simulacion_afd_view.py
+│   │   ├── definir_afd_view.py
+│   │   └── calcular_cerraduras_view.py
+│   └── utils/
+│       ├── mk_img_automaton.py
+│       ├── load_jff.py
+│       ├── save_jff.py
+│       ├── tabla_transiciones.py
+│       └── utilidades.py
+
