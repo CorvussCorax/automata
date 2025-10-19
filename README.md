@@ -1,17 +1,24 @@
 # Instrucciones:
 Haz un clon de mi repositorio
 
+En windows es necesario instalar graphviz y agregarlo a
+las variables de entorno (se puede hacer desde la instalacion):
+https://graphviz-org.translate.goog/download/?_x_tr_sl=en&_x_tr_tl=es&_x_tr_hl=es&_x_tr_pto=tc
+
+Asegurese de que estè instalado:
+dot -V
+
 ```bash
 #Clonar el repositorio
 git clone https://github.com/CorvussCorax/automata.git
 
-# Entrar al directorio
+#Entrar al directorio
 cd automata
-# Crear entorno virtual
+#Crear entorno virtual
 python3 -m venv venv
 source venv/bin/activate
 
-# Instalar dependencias
+#Instalar dependencias
 pip install -r requirements.txt
 ```
 ## Ejecución

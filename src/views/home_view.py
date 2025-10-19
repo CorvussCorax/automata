@@ -3,7 +3,7 @@ import flet as ft
 class Home_view:
     def __init__(self, page: ft.Page):
         self.page = page
-        self.page.title = "AFD Builder"
+        self.page.title = "Teoria de la computacion - Kevin Jesus Vazquez Sandria"
     
     def build(self) -> ft.View:
         return ft.View(
